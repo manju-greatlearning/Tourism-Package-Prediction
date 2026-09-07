@@ -1,0 +1,90 @@
+name: Tourism Package Prediction Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  data_validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run data validation
+        run: python scripts/data_validation.py
+
+  data_preparation:
+    runs-on: ubuntu-latest
+    needs: data_validation
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run data preparation
+        run: python scripts/data_preparation.py
+
+      - name: Upload dataset artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dataset_splits
+          path: artifacts/
+
+  model_training:
+    runs-on: ubuntu-latest
+    needs: data_preparation
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run model training
+        run: python scripts/model_training.py
+
+      - name: Upload trained model
+        uses: actions/upload-artifact@v3
+        with:
+          name: trained_model
+          path: models/model.pkl
+
+  model_evaluation:
+    runs-on: ubuntu-latest
+    needs: model_training
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run model evaluation
+        run: python scripts/model_evaluation.py
