@@ -1,0 +1,80 @@
+name: Tourism Package Prediction Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  data_registration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Validate dataset
+        run: python scripts/data_validation.py
+
+  data_preparation:
+    runs-on: ubuntu-latest
+    needs: data_registration
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - run: pip install -r requirements.txt
+      - name: Prepare data
+        run: python scripts/data_preparation.py
+      - name: Upload train/test artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dataset_splits
+          path: artifacts/
+
+  model_training:
+    runs-on: ubuntu-latest
+    needs: data_preparation
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - run: pip install -r requirements.txt
+      - name: Train model
+        run: python scripts/model_training.py
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: trained_model
+          path: models/model.pkl
+
+  model_evaluation:
+    runs-on: ubuntu-latest
+    needs: model_training
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - run: pip install -r requirements.txt
+      - name: Evaluate model
+        run: python scripts/model_evaluation.py
+
+  deployment:
+    runs-on: ubuntu-latest
+    needs: model_evaluation
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy Streamlit App
+        run: |
+          pip install -r requirements.txt
+          streamlit run app.py
