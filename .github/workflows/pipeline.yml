@@ -92,6 +92,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Download dataset artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dataset_splits
+          path: artifacts/
+
       - name: Download trained model
         uses: actions/download-artifact@v4
         with:
@@ -100,3 +106,12 @@ jobs:
 
       - name: Run model evaluation
         run: python scripts/model_evaluation.py
+
+      - name: Upload evaluation report
+        run: |
+          python scripts/model_evaluation.py > evaluation_report.txt
+        continue-on-error: false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: evaluation_report
+          path: evaluation_report.txt
