@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4   # ✅ updated to v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5   # ✅ latest stable
         with:
           python-version: '3.9'
 
@@ -28,10 +28,10 @@ jobs:
     needs: data_validation
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
@@ -42,7 +42,7 @@ jobs:
         run: python scripts/data_preparation.py
 
       - name: Upload dataset artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4   # ✅ fixed
         with:
           name: dataset_splits
           path: artifacts/
@@ -52,10 +52,10 @@ jobs:
     needs: data_preparation
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
@@ -66,7 +66,7 @@ jobs:
         run: python scripts/model_training.py
 
       - name: Upload trained model
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4   # ✅ fixed
         with:
           name: trained_model
           path: models/model.pkl
@@ -76,10 +76,10 @@ jobs:
     needs: model_training
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
